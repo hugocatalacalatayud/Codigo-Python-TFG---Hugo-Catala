@@ -4,7 +4,7 @@ import json
 import time
 import os
 
-# Intentamos importar Qiskit para ver los backends disponibles en el cluster
+
 try:
     from qiskit_ibm_provider import IBMProvider
     from qiskit import Aer
@@ -12,18 +12,18 @@ try:
 except ImportError:
     HAVE_QISKIT = False
 
-# ==============================================================================
-# 1. PARÁMETROS APRENDIDOS (Tus resultados del entrenamiento)
-# ==============================================================================
+
+# 1. PARÁMETROS APRENDIDOS 
+
 LEARNED_PARAMS = {
     "dt": 0.441527,
     "u_ff": 2.413383,
     "bias": 0.048092
 }
 
-# ==============================================================================
+
 # 2. CONFIGURACIÓN DEL BACKEND (CLUSTER QBLUE)
-# ==============================================================================
+
 print("--- CONFIGURANDO ENTORNO QBLUE ---")
 
 if HAVE_QISKIT:
@@ -38,10 +38,6 @@ if HAVE_QISKIT:
         # backend_name = 'ibm_brisbane' # O el nombre que salga en la lista anterior
         # dev = qml.device('qiskit.ibmq', wires=4, backend=backend_name, provider=provider)
         
-        # --- OPCIÓN B: SIMULACIÓN HPC (Por defecto para primera prueba) ---
-        # Usamos el simulador Aer que corre rapidísimo en los nodos del BSC
-        dev = qml.device("qiskit.aer", wires=4, shots=1024)
-        print("-> Usando Backend: Qiskit Aer Simulator (HPC)")
         
     except Exception as e:
         print(f"-> Nota: No se pudo conectar al Provider IBMQ automáticamente ({e}).")
@@ -52,9 +48,9 @@ else:
     dev = qml.device("default.qubit", wires=4)
 
 
-# ==============================================================================
-# 3. CIRCUITO (IDÉNTICO AL ENTRENADO)
-# ==============================================================================
+
+# 3. CIRCUITO 
+
 def trotter_step(dt, u_imp, u_ff):
     qml.MultiRZ(2 * u_imp * dt, wires=[1, 3])
     qml.MultiRZ(2 * u_imp * dt, wires=[2, 3])
@@ -84,9 +80,7 @@ def circuit_inference(u_imp_val, theta_val):
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-# ==============================================================================
 # 4. EJECUCIÓN DE PUNTOS DE PRUEBA
-# ==============================================================================
 test_points = [
     {"label": "BEC_Deep", "u": 5.5, "th": 3.0},
     {"label": "BEC_Edge", "u": 4.0, "th": 2.8},
@@ -119,9 +113,7 @@ for pt in test_points:
     except Exception as e:
         print(f"Error en punto {pt['label']}: {e}")
 
-# ==============================================================================
 # 5. GUARDAR RESULTADOS
-# ==============================================================================
 output_filename = "resultados_qblue_ific60.json"
 with open(output_filename, "w") as f:
     json.dump(results_data, f, indent=4)
