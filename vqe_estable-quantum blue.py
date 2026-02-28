@@ -14,9 +14,9 @@ print("=" * 80)
 print("VQE - VARIATIONAL QUANTUM EIGENSOLVER (Qiskit 1.0+)")
 print("=" * 80)
 
-# ============================================================================
+
 # VERIFICACIÓN E INSTALACIÓN DE LIBRERÍAS
-# ============================================================================
+
 
 def check_and_install():
     """Verifica e instala las librerías necesarias"""
@@ -37,18 +37,17 @@ def check_and_install():
             print(f"✗ {module:20s} FALTA")
     
     if missing:
-        print("\n⚠️  Instalando paquetes faltantes...")
+        print("Instalando paquetes faltantes...")
         import subprocess
         for package in missing:
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", package])
         print("✓ Paquetes instalados correctamente\n")
 
-print("\n🔧 Verificando dependencias...")
+print("Verificando dependencias...")
 check_and_install()
 
-# ============================================================================
 # IMPORTACIONES FINALES
-# ============================================================================
+
 
 try:
     from qiskit.quantum_info import SparsePauliOp
@@ -58,12 +57,11 @@ try:
     from qiskit_algorithms.optimizers import COBYLA
     print("✓ Todas las importaciones de Qiskit cargadas correctamente\n")
 except ImportError as e:
-    print(f"❌ Error de importación: {e}")
+    print(f"Error de importación: {e}")
     sys.exit(1)
 
-# ============================================================================
+
 # 1. DEFINICIÓN DEL HAMILTONIANO (H = -ZZ - XI - IX)
-# ============================================================================
 
 print("=" * 80)
 print("1. DEFINICIÓN DEL HAMILTONIANO (Ising 1D - N=2)")
@@ -80,7 +78,7 @@ try:
     hamiltonian = SparsePauliOp.from_list(pauli_list)
     print("✓ Hamiltoniano creado exitosamente")
 except Exception as e:
-    print(f"❌ Error al crear Hamiltoniano: {e}")
+    print(f"Error al crear Hamiltoniano: {e}")
     sys.exit(1)
 
 # Autovalor exacto para verificación
@@ -92,16 +90,16 @@ try:
     print(f"✓ Número de qubits: {hamiltonian.num_qubits}")
     print(f"✓ Dimensión del espacio de Hilbert: {H_matrix.shape[0]}")
 except Exception as e:
-    print(f"❌ Error calculando autovalor exacto: {e}")
+    print(f"Error calculando autovalor exacto: {e}")
     sys.exit(1)
 
-# ============================================================================
-# 2. CONFIGURACIÓN DEL VQE (ANSATZ, OPTIMIZADOR, ESTIMADOR)
-# ============================================================================
 
-print("\n" + "=" * 80)
+# 2. CONFIGURACIÓN DEL VQE (ANSATZ, OPTIMIZADOR, ESTIMADOR)
+
+
+
 print("2. CONFIGURACIÓN DEL VQE")
-print("=" * 80)
+
 
 # Almacenar resultados intermedios
 intermediate_results = {
@@ -138,7 +136,7 @@ try:
     print(f"    └─ Parámetros totales: {ansatz.num_parameters}")
     
 except Exception as e:
-    print(f"❌ Error creando Ansatz: {e}")
+    print(f"Error creando Ansatz: {e}")
     sys.exit(1)
 
 # 2.2 Optimizador (COBYLA)
@@ -156,7 +154,7 @@ try:
     print(f"    └─ Status: Configurado ✓")
     
 except Exception as e:
-    print(f"❌ Error creando Optimizador: {e}")
+    print(f"Error creando Optimizador: {e}")
     sys.exit(1)
 
 # 2.3 Estimador (Primitivas de Qiskit)
@@ -169,19 +167,19 @@ try:
     print(f"    └─ Status: Inicializado ✓")
     
 except Exception as e:
-    print(f"❌ Error inicializando Estimador: {e}")
+    print(f" Error inicializando Estimador: {e}")
     print("    Intentando alternativa...")
     try:
         from qiskit_aer.primitives import Estimator as AerEstimator
         estimator = AerEstimator()
         print("    ✓ AerEstimator cargado como alternativa")
     except:
-        print("❌ No se pudo inicializar estimador")
+        print(" No se pudo inicializar estimador")
         sys.exit(1)
 
-# ============================================================================
+
 # 3. EJECUCIÓN DEL VQE
-# ============================================================================
+
 
 print("\n" + "=" * 80)
 print("3. EJECUCIÓN DEL VQE")
@@ -201,19 +199,15 @@ try:
     print("\n  ✓ Optimización completada exitosamente")
     
 except Exception as e:
-    print(f"\n❌ Error durante VQE: {e}")
+    print(f" Error durante VQE: {e}")
     print("   Esto puede ocurrir por versiones incompatibles de Qiskit")
     print("   Intenta reinstalar: pip install qiskit qiskit-algorithms -U")
     sys.exit(1)
 
-# ============================================================================
+
 # 4. ANÁLISIS DE RESULTADOS
-# ============================================================================
 
-print("\n" + "=" * 80)
 print("4. RESULTADOS FINALES")
-print("=" * 80)
-
 try:
     vqe_eigenvalue = vqe_result.eigenvalue.real
     error_abs = abs(vqe_eigenvalue - exact_result)
@@ -223,30 +217,28 @@ try:
     initial_error = abs(intermediate_results['values'][0] - exact_result)
     improvement = ((initial_error - error_abs) / initial_error) * 100 if initial_error > 0 else 0
     
-    print(f"\n📊 Comparación de Resultados:")
+    print(f" Comparación de Resultados:")
     print(f"   ├─ Autovalor VQE:          {vqe_eigenvalue:12.8f} Ha")
     print(f"   ├─ Autovalor Exacto:       {exact_result:12.8f} Ha")
     print(f"   ├─ Error Absoluto:         {error_abs:12.2e} Ha")
     print(f"   ├─ Error Relativo:         {error_rel:12.4f} %")
     print(f"   └─ Mejora Total:           {improvement:12.2f} %")
     
-    print(f"\n📈 Estadísticas de Optimización:")
+    print(f"  Estadísticas de Optimización:")
     print(f"   ├─ Iteraciones totales:    {len(intermediate_results['iters']):d}")
     print(f"   ├─ Energía inicial:        {intermediate_results['values'][0]:12.8f} Ha")
     print(f"   ├─ Energía final:          {intermediate_results['values'][-1]:12.8f} Ha")
     print(f"   └─ Desv. estándar final:   {intermediate_results['std'][-1]:12.2e}")
     
 except Exception as e:
-    print(f"❌ Error procesando resultados: {e}")
+    print(f" Error procesando resultados: {e}")
     sys.exit(1)
 
-# ============================================================================
-# 5. VISUALIZACIÓN
-# ============================================================================
 
-print("\n" + "=" * 80)
+# 5. VISUALIZACIÓN
+
+
 print("5. GENERANDO VISUALIZACIONES")
-print("=" * 80)
 
 try:
     fig = plt.figure(figsize=(16, 6))
@@ -306,22 +298,18 @@ try:
     plt.show()
     
 except Exception as e:
-    print(f"⚠️  Error generando gráficas: {e}")
+    print(f" Error generando gráficas: {e}")
     print("   (Las gráficas son opcionales, los resultados se calcularon correctamente)")
 
-# ============================================================================
+
 # 6. RESUMEN FINAL
-# ============================================================================
 
-print("\n" + "=" * 80)
-print("✅ EJECUCIÓN COMPLETADA CON ÉXITO")
-print("=" * 80)
+print(" EJECUCIÓN COMPLETADA CON ÉXITO")
 
-print("\n📋 RESUMEN:")
+print(" RESUMEN:")
 print(f"   • Problema: Hamiltoniano Ising 1D (2 qubits)")
 print(f"   • Algoritmo: VQE con Ansatz NLocal")
 print(f"   • Optimizador: COBYLA ({len(intermediate_results['iters'])} iteraciones)")
 print(f"   • Precisión lograda: {error_rel:.4f}% de error relativo")
-print(f"   • Estado: EXITOSO ✓")
+print(f"   • Estado: EXITOSO ")
 
-print("\n" + "=" * 80 + "\n")
