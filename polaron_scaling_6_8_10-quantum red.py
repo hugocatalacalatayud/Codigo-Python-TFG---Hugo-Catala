@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import time
 
-# ==============================================================================
+
 #  SIMULACIÓN POLARON DE FERMI: SCALING 6, 8, 10 QUBITS
-# ==============================================================================
+
 
 class PolaronSimulation:
     def __init__(self, n_qubits):
